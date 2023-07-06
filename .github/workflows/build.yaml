@@ -16,12 +16,10 @@ jobs:
       - name: Install some APT packages
         run: sudo apt install -y git
 
-      - name: Clone target repository
-        run: git clone https://github.com/KSXGitHub/pacman-repo.git pacman-repo
 
       - name: Inspect restored failed build record
         continue-on-error: true
-        run: cat pacman-repo/failed-build-records/aur-packages-builder.yaml
+        run: cat failed-build-records/aur-packages-builder.yaml
 
       - name: Init AUR Builder
         uses: pacman-repo-builder/action@0.0.0-rc.63
@@ -41,25 +39,14 @@ jobs:
 
       - name: Inspect changed failed build record
         continue-on-error: true
-        run: cat pacman-repo/failed-build-records/aur-packages-builder.yaml
+        run: cat failed-build-records/aur-packages-builder.yaml
 
-      - name: Upload packages
-        env:
-          COMMIT_AUTHOR_NAME: ${{ secrets.COMMIT_AUTHOR_NAME }}
-          COMMIT_AUTHOR_EMAIL: ${{ secrets.COMMIT_AUTHOR_EMAIL }}
-          AUTH_USERNAME: KSXGitHub
-          AUTH_PASSWORD: ${{ secrets.AUTH_PASSWORD }}
-        run: |
-          cd pacman-repo
-          git config user.name "$COMMIT_AUTHOR_NAME"
-          git config user.email "$COMMIT_AUTHOR_EMAIL"
-          git add -v .
-          git commit -m "Update by $GITHUB_REPOSITORY@$GITHUB_SHA" --allow-empty
-          echo "username=$AUTH_USERNAME" >> /tmp/git-login.txt
-          echo "password=$AUTH_PASSWORD" >> /tmp/git-login.txt
-          echo '#! /bin/bash' >> /tmp/credential-helper
-          echo 'cat /tmp/git-login.txt' >> /tmp/credential-helper
-          chmod +x /tmp/credential-helper
-          git config credential.helper '/tmp/credential-helper'
+      - name: Commit Changed Files
+        run: |     
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add -A
+          git checkout master
+          git diff-index --quiet HEAD || git commit -am "update pkgs"
           git pull origin master --rebase=true # to avoid conflicts due to data races
-          git push origin master
+          git push
