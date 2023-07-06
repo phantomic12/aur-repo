@@ -39,7 +39,7 @@ def 'pkg from name get repo' [] {
 }
 
 def 'pkg repo is-needed' [repo: list] {
-  $repo | all {|repo| $repo == 'khai' or $repo == 'aur'}
+  $repo | all {|repo| $repo == 'phn' or $repo == 'aur'}
 }
 
 def show-data [] {
