@@ -10,4 +10,3 @@ global-settings:
   check: disabled
 aur-package-names:
   - tlauncher
-  - linux-intel-lts-sriov
